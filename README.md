@@ -4,11 +4,15 @@
 ## DESDE BASE RENDIMIENTO:
 -**SIT_FIN** / cadena/ Situación de promoción al cierre del año escolar/P: Promovido* R: Reprobado Y: Retirado en blanco: Sin información
 -**SIT_FIN_R**/ cadena/ Situación de promoción al cierre del año escolar, con indicador de traslado P: Promovido R: Reprobado Y: Retirado T: Trasladado* en blanco: Sin información
+-**PROM_GRAL**/ Numérico/ Promedio general anual**
+-**ASISTENCIA**/ Numérico/ Porcentaje anual de asistencia
 
 ##### *Promovido (Aprobado): estudiante que rinde satisfactoriamente sus evaluaciones, de acuerdo con la legislación vigente durante un año lectivo.*
 ##### *Reprobado: estudiante que no rinde satisfactoriamente sus evaluaciones, de acuerdo con la legislación vigente durante un año lectivo.*
 ##### *Retirado: estudiante que por retiro formal o no formal, no está en condiciones de ser evaluado*
 ##### *Trasladado: estudiante que se cambió de establecimiento (o a otro curso, en el mismo establecimiento) durante el año escolar*
+##### *No necesariamente corresponde al promedio aritmético de los promedios por subsector. Para estudiantes retirados se informa promedio “0,0”.*
+
 
 ## DESDE BASE SEP
 -**PRIORITARIO_ALU**/ Numérico/ Indicador de Alumno prioritario// 0: No prioritario 1: Priotitario
