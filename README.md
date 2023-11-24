@@ -3,8 +3,11 @@
 ### (VARIABLES UTILIZADAS: NOMBRE/TIPO/DESCRIPCIÓN/VALORES)
 ## DESDE BASE RENDIMIENTO:
 -**SIT_FIN** / cadena/ Situación de promoción al cierre del año escolar/P: Promovido* R: Reprobado Y: Retirado en blanco: Sin información
+
 -**SIT_FIN_R**/ cadena/ Situación de promoción al cierre del año escolar, con indicador de traslado P: Promovido R: Reprobado Y: Retirado T: Trasladado* en blanco: Sin información
+
 -**PROM_GRAL**/ Numérico/ Promedio general anual**
+
 -**ASISTENCIA**/ Numérico/ Porcentaje anual de asistencia
 
 ##### *Promovido (Aprobado): estudiante que rinde satisfactoriamente sus evaluaciones, de acuerdo con la legislación vigente durante un año lectivo.*
