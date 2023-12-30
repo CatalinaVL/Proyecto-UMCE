@@ -1,0 +1,195 @@
+---
+title: "AnalisisREV"
+output: html_document
+date: "2023-12-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r cars}
+#TRATAMIENTO BASE REVINCULADORES 
+pacman::p_load("dplyr", "ggplot2", "readr", "readxl", "data.table") 
+
+#ABRIR
+BASE <- read_excel("C:/Users/cata_/Documents/UMCE2/REVINCULADORES/BASE PROC4.xlsx")
+
+```
+
+```{r}
+# columnas SIN  modificar
+names(BASE)
+
+columnas_no_modificar <- c("CODIGOREG", "REGION", "ESTABLECIMIENTO", "SOSTENEDOR",
+                           "DIRECTOR", "JEFE_UTP", "DUPLA_PSICOSOCIAL", "ENC_CONVIVENCIA",
+                           "EST_SEXO", "EST_GENERO", "EST_EDAD", "EST_RUT", "N_DESVINCULADOS", 
+                           "EST_FECHA_NAC", "EST_NACIONALIDAD", "EST_ESTABLECIMIENTO", "EST_ULTIMOCURSO",
+                           "EST_ESPECIALIDAD", "NOMBRE_TUTOR", "RELACION_TUTOR", "FONO_TUTOR", 
+                           "CORREO_TUTOR", "OTRO_ESPECIALIDAD")
+
+# Lista de columnas para aplicar la transformación
+columnas_para_transformar <- setdiff(names(BASE), columnas_no_modificar)
+
+# Transformación de las celdas con información a 'SI' y las vacías a 'NA'
+BASE[columnas_para_transformar] <- BASE[columnas_para_transformar] %>%
+  mutate_all(.funs = ~ifelse(is.na(.), "0", "1"))
+
+
+```
+
+
+```{r}
+# Obtener el tipo de cada variable en el dataframe datos_educacion
+tipos_variables <- sapply(BASE, function(x) class(x))
+
+# Mostrar los tipos de cada variable
+print(tipos_variables)
+
+
+# Convertir las variables dummy a numéricas
+BASE[, c("DESV_FAMILIAR", "DEV_CUIDADOS","DESV_ENFERM","DESV_DUELO","DESV_SOCIOECON",
+         "DESV_TRABAJO", "DESV_TRASLADO","DESV_REGRESO","DESV_PROB_CONV", "DESV_IDENTIDAD","DESV_DISC_APRENDIZ","DESV_LEJANIA",
+         "DESV_TRANSPORTE","DESV_CONECTIVIDAD","DESV_FALTA_OFERTA","DESV_SALUD",
+         "DESV_CONFLICT_JUST","DESV_CONS_DROGAS","DESV_SMILITAR","DESV_PROB_SAE",
+         "DESV_MIGRACION", "DESV_REINCORPORADO_OTROPROG")] <- 
+  lapply(BASE[, c("DESV_FAMILIAR", "DEV_CUIDADOS","DESV_ENFERM","DESV_DUELO","DESV_SOCIOECON",
+                  "DESV_TRABAJO", "DESV_TRASLADO","DESV_REGRESO","DESV_PROB_CONV",
+                  "DESV_IDENTIDAD","DESV_DISC_APRENDIZ","DESV_LEJANIA",
+                  "DESV_TRANSPORTE","DESV_CONECTIVIDAD","DESV_FALTA_OFERTA","DESV_SALUD",
+                  "DESV_CONFLICT_JUST","DESV_CONS_DROGAS","DESV_SMILITAR","DESV_PROB_SAE",
+                  "DESV_MIGRACION", "DESV_REINCORPORADO_OTROPROG")], as.numeric)
+```
+
+ANALISIS 
+DESVINCULACIÓN DE ACUERDO A LOS SUPUESTOS 
+
+```{r}
+# Obtener la frecuencia de cada supuesto de desvinculación
+frecuencia_supuestos <- colSums(BASE[, c("DESV_FAMILIAR", "DEV_CUIDADOS","DESV_ENFERM","DESV_DUELO","DESV_SOCIOECON",
+                                                    "DESV_TRABAJO", "DESV_TRASLADO","DESV_REGRESO","DESV_PROB_CONV",
+                                                    "DESV_IDENTIDAD","DESV_DISC_APRENDIZ","DESV_LEJANIA",
+                                                    "DESV_TRANSPORTE","DESV_CONECTIVIDAD","DESV_FALTA_OFERTA","DESV_SALUD",
+                                                    "DESV_CONFLICT_JUST","DESV_CONS_DROGAS","DESV_SMILITAR","DESV_PROB_SAE",
+                                                    "DESV_MIGRACION", "DESV_REINCORPORADO_OTROPROG")])
+
+# Crear un dataframe con la frecuencia y los nombres de los supuestos
+df_frecuencia <- data.frame(supuesto = names(frecuencia_supuestos), frecuencia = frecuencia_supuestos)
+
+# Calcular los porcentajes
+df_frecuencia$porcentaje <- df_frecuencia$frecuencia / sum(df_frecuencia$frecuencia) * 100
+
+```
+
+GRAFICO DE TORTA DE SUPUESTOS DE DESV
+
+```{r}
+# Crear el gráfico de torta
+ggplot(df_frecuencia, aes(x = "", y = porcentaje, fill = supuesto)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar("y", start = 0) +
+  labs(title = "Porcentaje de desvinculación por supuesto",
+       x = NULL, y = NULL) +
+  geom_text(aes(label = paste0(supuesto, ": ", round(porcentaje, 2), "%")),
+            position = position_stack(vjust = 0.5)) +
+  theme_minimal()
+
+```
+
+GRAFICO DE BARRAS DE SUPUESTOS DE DESV
+```{r}
+# Crear el gráfico de barras para mostrar nombres y porcentajes de supuestos
+ggplot(df_frecuencia, aes(x = supuesto, y = porcentaje, fill = supuesto)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(porcentaje, 2), "%")),
+            vjust = -0.5, size = 3) +
+  labs(title = "Porcentaje de desvinculación por supuesto",
+       x = "Supuestos de desvinculación", y = "Porcentaje") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+ANALISIS
+ANTECEDENTES DE LOS ESTUDIANTES REGISTRADOS 
+```{r}
+# Convertir las variables dummy a numéricas
+BASE[, c("ANT_COMP_FAM",                "ANT_RURAL_DOM",            
+  "ANT_DISTANCIA_DOM" ,          "ANT_TRANS_ADEC"       ,       "ANT_ACC_INTERNET"  ,         
+  "ANT_REL_SIGNIF_AD" ,          "ANT_REL_SIGNIF_PAR"   ,       "ANT_FALTA_OFERTA"  ,         
+  "ANT_SIT_ACAD"      ,          "ANT_ASISTENCIA"       ,       "ANT_ID_GENERO"     ,         
+  "ANT_SALUD"         ,          "MIGRACION"            ,       "ANT_INMIGG"        ,        
+  "ANT_SIT_DISCAP"    ,          "ANT_PROB_APRENDIZ"    ,       "ANT_CONS_DROGAS"   ,         
+  "ANT_CONFLICT_JUST" ,          "OTRO_ANT"             ,      "ANT_OTRO" )] <- 
+  lapply(BASE[, c("ANT_COMP_FAM",                "ANT_RURAL_DOM",            
+  "ANT_DISTANCIA_DOM" ,          "ANT_TRANS_ADEC"       ,       "ANT_ACC_INTERNET"  ,         
+  "ANT_REL_SIGNIF_AD" ,          "ANT_REL_SIGNIF_PAR"   ,       "ANT_FALTA_OFERTA"  ,         
+  "ANT_SIT_ACAD"      ,          "ANT_ASISTENCIA"       ,       "ANT_ID_GENERO"     ,         
+  "ANT_SALUD"         ,          "MIGRACION"            ,       "ANT_INMIGG"        ,        
+  "ANT_SIT_DISCAP"    ,          "ANT_PROB_APRENDIZ"    ,       "ANT_CONS_DROGAS"   ,         
+  "ANT_CONFLICT_JUST" ,          "OTRO_ANT"             ,      "ANT_OTRO" )], as.numeric)
+```
+
+```{r}
+# Obtener la frecuencia de cada supuesto de desvinculación
+frecuencia_antecedentes <- colSums(BASE[, c("ANT_COMP_FAM",                "ANT_RURAL_DOM",            
+  "ANT_DISTANCIA_DOM" ,          "ANT_TRANS_ADEC"       ,       "ANT_ACC_INTERNET"  ,         
+  "ANT_REL_SIGNIF_AD" ,          "ANT_REL_SIGNIF_PAR"   ,       "ANT_FALTA_OFERTA"  ,         
+  "ANT_SIT_ACAD"      ,          "ANT_ASISTENCIA"       ,       "ANT_ID_GENERO"     ,         
+  "ANT_SALUD"         ,          "MIGRACION"            ,       "ANT_INMIGG"        ,        
+  "ANT_SIT_DISCAP"    ,          "ANT_PROB_APRENDIZ"    ,       "ANT_CONS_DROGAS"   ,         
+  "ANT_CONFLICT_JUST" ,          "OTRO_ANT"             ,      "ANT_OTRO" )])
+
+# Crear un dataframe con la frecuencia y los nombres de los supuestos
+df_frecuencia <- data.frame(antecedentes = names(frecuencia_antecedentes), frecuencia = frecuencia_antecedentes)
+
+# Calcular los porcentajes
+df_frecuencia$porcentaje <- df_frecuencia$frecuencia / sum(df_frecuencia$frecuencia) * 100
+
+```
+
+GRAFICO DE BARRAS 
+ANTECEDENTES
+```{r}
+# Crear el gráfico de barras para mostrar nombres y porcentajes de supuestos
+ggplot(df_frecuencia, aes(x = antecedentes, y = porcentaje, fill = antecedentes)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(porcentaje, 2), "%")),
+            vjust = -0.5, size = 3) +
+  labs(title = "Porcentaje de antecedentes por estudiante informados",
+       x = "Antecedentes", y = "Porcentaje") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+ANALISIS
+REDES DE LOS ESTABLECIMIENTOS
+```{r}
+names(BASE)
+BASE[, c("MUNICIPIO", "CONSULTORIO",  "CARABINEROS", "BOMBEROS","JUNTAVECINOS", "ODP", "SENDA", "I_ED_SUPERIOR", "FUNDACIONES","OTRO_ORGANISMO")] <- 
+  lapply(BASE[, c("MUNICIPIO", "CONSULTORIO",  "CARABINEROS", "BOMBEROS","JUNTAVECINOS", "ODP", "SENDA", "I_ED_SUPERIOR", "FUNDACIONES","OTRO_ORGANISMO")], as.numeric)
+```
+
+```{r}
+frecuencia_redes <- colSums(BASE[,c ("MUNICIPIO", "CONSULTORIO",  "CARABINEROS", "BOMBEROS","JUNTAVECINOS", "ODP", "SENDA", "I_ED_SUPERIOR", "FUNDACIONES","OTRO_ORGANISMO")])
+
+df_frecuencia <- data.frame(organismos = names(frecuencia_redes), frecuencia = frecuencia_redes)
+
+df_frecuencia$porcentaje <- df_frecuencia$frecuencia / sum(df_frecuencia$frecuencia) * 100
+
+num_respuestas <- sum(df_frecuencia$frecuencia)
+
+```
+
+```{r}
+ggplot(df_frecuencia, aes(x = organismos, y = porcentaje, fill = organismos)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste0(round(porcentaje, 2), "%\n", frecuencia, " respuestas")),
+            vjust = -0.5, size = 3) +
+  labs(title = "Porcentaje de redes de los establecimientos",
+       x = "Organismos", y = "Porcentaje") +
+    annotate("text", x = Inf, y = Inf, label = paste("Total de respuestas:", num_respuestas), hjust = 1, vjust = 1) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
