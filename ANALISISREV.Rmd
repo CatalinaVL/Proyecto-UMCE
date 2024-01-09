@@ -1,30 +1,37 @@
 ---
 title: "AnalisisREV"
-output: html_document
+output:
+  html_document:
+    theme: journal
+    toc: true
+    toc_float: true
+    cod_folding: hide
 date: "2023-12-21"
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, include = TRUE)
 ```
 
 
-```{r cars}
+```{r, include=FALSE}
 #TRATAMIENTO BASE REVINCULADORES 
-pacman::p_load("dplyr", "ggplot2", "readr", "readxl", "data.table") 
+pacman::p_load("dplyr", "ggplot2", "readr", "readxl", "data.table", "summarytools", "psych", "Hmisc",
+               "openxlsx") 
 
 #ABRIR
-BASE <- read_excel("C:/Users/cata_/Documents/UMCE2/REVINCULADORES/BASE PROC4.xlsx")
+BASE <- read_excel("C:/Users/cata_/Documents/UMCE2/REVINCULADORES/BASE3.xlsx")
+
 
 ```
 
-```{r}
+```{r include=FALSE}
 # columnas SIN  modificar
 names(BASE)
 
 columnas_no_modificar <- c("CODIGOREG", "REGION", "ESTABLECIMIENTO", "SOSTENEDOR",
                            "DIRECTOR", "JEFE_UTP", "DUPLA_PSICOSOCIAL", "ENC_CONVIVENCIA",
-                           "EST_SEXO", "EST_GENERO", "EST_EDAD", "EST_RUT", "N_DESVINCULADOS", 
+                           "EST_NOMBRE","EST_SEXO", "EST_GENERO", "EST_EDAD", "EST_RUT", "N_DESVINCULADOS", 
                            "EST_FECHA_NAC", "EST_NACIONALIDAD", "EST_ESTABLECIMIENTO", "EST_ULTIMOCURSO",
                            "EST_ESPECIALIDAD", "NOMBRE_TUTOR", "RELACION_TUTOR", "FONO_TUTOR", 
                            "CORREO_TUTOR", "OTRO_ESPECIALIDAD")
@@ -40,7 +47,7 @@ BASE[columnas_para_transformar] <- BASE[columnas_para_transformar] %>%
 ```
 
 
-```{r}
+```{r include=FALSE}
 # Obtener el tipo de cada variable en el dataframe datos_educacion
 tipos_variables <- sapply(BASE, function(x) class(x))
 
@@ -62,19 +69,27 @@ BASE[, c("DESV_FAMILIAR", "DEV_CUIDADOS","DESV_ENFERM","DESV_DUELO","DESV_SOCIOE
                   "DESV_MIGRACION", "DESV_REINCORPORADO_OTROPROG")], as.numeric)
 ```
 
-ANALISIS 
-DESVINCULACIÓN DE ACUERDO A LOS SUPUESTOS 
+### ANALISIS BASE ENCUESTA 
 
-```{r}
+#### Desvinculación de acuerdo a los supuestos
+
+```{r, include=FALSE}
+names(BASE)
+summary(BASE)
 # Obtener la frecuencia de cada supuesto de desvinculación
-frecuencia_supuestos <- colSums(BASE[, c("DESV_FAMILIAR", "DEV_CUIDADOS","DESV_ENFERM","DESV_DUELO","DESV_SOCIOECON",
-                                                    "DESV_TRABAJO", "DESV_TRASLADO","DESV_REGRESO","DESV_PROB_CONV",
-                                                    "DESV_IDENTIDAD","DESV_DISC_APRENDIZ","DESV_LEJANIA",
-                                                    "DESV_TRANSPORTE","DESV_CONECTIVIDAD","DESV_FALTA_OFERTA","DESV_SALUD",
-                                                    "DESV_CONFLICT_JUST","DESV_CONS_DROGAS","DESV_SMILITAR","DESV_PROB_SAE",
-                                                    "DESV_MIGRACION", "DESV_REINCORPORADO_OTROPROG")])
+BASE$DESV_NOSUPUESTO
+BASE$DESV_OTRO<- ifelse(BASE$DESV_OTRO == 1, 1, 0)
+BASE$DESV_NOSUPUESTO<- ifelse(BASE$DESV_NOSUPUESTO == 1, 1, 0)
+frecuencia_supuestos <- colSums(BASE[, c("DESV_FAMILIAR",               "DESV_CUIDADOS",              
+  "DESV_ENFERM",                 "DESV_DUELO" ,                 "DESV_SOCIOECON",             
+  "DESV_TRABAJO",                "DESV_PROB_CONV",              "DESV_IDENTIDAD",             
+  "DESV_DISC_APRENDIZ",          "DESV_LEJANIA",                "DESV_TRANSPORTE",           
+ "DESV_CONECTIVIDAD" ,          "DESV_FALTA_OFERTA" ,          "DESV_SALUD" ,                
+ "DESV_CONFLICT_JUST" ,         "DESV_CONS_DROGAS"  ,          "DESV_SMILITAR"  ,            
+ "DESV_PROB_SAE"   ,            "DESV_REINCORPORADO_OTROPROG", "DESV_MIGRACION"  ,                         "DESV_OTRO" , "DESV_NOSUPUESTO"   )])
 
 # Crear un dataframe con la frecuencia y los nombres de los supuestos
+
 df_frecuencia <- data.frame(supuesto = names(frecuencia_supuestos), frecuencia = frecuencia_supuestos)
 
 # Calcular los porcentajes
@@ -82,23 +97,43 @@ df_frecuencia$porcentaje <- df_frecuencia$frecuencia / sum(df_frecuencia$frecuen
 
 ```
 
-GRAFICO DE TORTA DE SUPUESTOS DE DESV
+#### Grafico de torta Desvinculación de acuerdo a cada supuesto
 
-```{r}
+```{r, echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
+
 # Crear el gráfico de torta
 ggplot(df_frecuencia, aes(x = "", y = porcentaje, fill = supuesto)) +
   geom_bar(stat = "identity", width = 1, color = "white") +
   coord_polar("y", start = 0) +
   labs(title = "Porcentaje de desvinculación por supuesto",
        x = NULL, y = NULL) +
-  geom_text(aes(label = paste0(supuesto, ": ", round(porcentaje, 2), "%")),
-            position = position_stack(vjust = 0.5)) +
-  theme_minimal()
+  geom_text(aes(label = paste0(round(porcentaje, 2), "%")),
+            position = position_stack(vjust = 0.5),
+            size = 4) +
+  theme_gray() 
 
 ```
 
-GRAFICO DE BARRAS DE SUPUESTOS DE DESV
 ```{r}
+p <- ggplot(df_frecuencia, aes(x = "", y = porcentaje, fill = supuesto)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(round(porcentaje), "%")),
+            position = position_stack(vjust = 0.5),
+            size = 4) +
+  labs(title = "Porcentaje por Supuesto") +
+  theme_minimal() +
+  theme_void()
+
+# Agregar etiquetas fuera del gráfico
+p + theme(plot.margin = margin(1, 1, 1, 1, "cm"))
+
+```
+
+
+#### Grafico de barras Desvinculación de acuerdo a cada supuesto
+
+```{r  echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
 # Crear el gráfico de barras para mostrar nombres y porcentajes de supuestos
 ggplot(df_frecuencia, aes(x = supuesto, y = porcentaje, fill = supuesto)) +
   geom_bar(stat = "identity") +
@@ -106,39 +141,136 @@ ggplot(df_frecuencia, aes(x = supuesto, y = porcentaje, fill = supuesto)) +
             vjust = -0.5, size = 3) +
   labs(title = "Porcentaje de desvinculación por supuesto",
        x = "Supuestos de desvinculación", y = "Porcentaje") +
-  theme_minimal() +
+  theme_light() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-ANALISIS
-ANTECEDENTES DE LOS ESTUDIANTES REGISTRADOS 
+TABLA POR SUPUESTO DE DESVINCULACION 
+
+```{r}
+install.packages("")
+library(openxlsx)
+
+# Normalizar y limpiar los nombres de los establecimientos en ambas bases de datos
+BASE <- BASE %>%
+  mutate(ESTABLECIMIENTO = tolower(ESTABLECIMIENTO)) %>%
+  mutate(ESTABLECIMIENTO = stri_trans_general(ESTABLECIMIENTO, "Latin-ASCII")) # Eliminar tildes y caracteres especiales
+
+PLANILLA <- PLANILLA %>%
+  mutate(ESTABLECIMIENTO = tolower(ESTABLECIMIENTO)) %>%
+  mutate(ESTABLECIMIENTO = stri_trans_general(ESTABLECIMIENTO, "Latin-ASCII")) # Eliminar tildes y caracteres especiales
+
+
+PLANILLACHICA <- select(PLANILLA, "RUN", "PROVINCIAL")
+BASECHICA <- select(BASE, "EST_RUT")
+
+
+BASECHICA <- BASECHICA %>%
+  mutate(EST_RUT = str_replace_all(EST_RUT, "[.-]", ""), # Elimina guiones y puntos
+         DV = substr(EST_RUT, nchar(EST_RUT), nchar(EST_RUT)) # Extrae el último dígito
+  )
+BASECHICA$EST_RUT <- substr(BASECHICA$EST_RUT, 1, nchar(BASECHICA$EST_RUT) - 1)
+
+names(PLANILLACHICA)[names(PLANILLACHICA) == "RUN"] <- "EST_RUT"
+
+PLANILLACHICA <- PLANILLACHICA %>%
+  mutate(EST_RUT = str_replace_all(EST_RUT, "[.-]", ""))
+PLANILLACHICA$EST_RUT <- ifelse(nchar(PLANILLACHICA$EST_RUT) > 9,
+                                substr(PLANILLACHICA$EST_RUT, 1, nchar(PLANILLACHICA$EST_RUT) - 1),
+                                PLANILLACHICA$EST_RUT)
+
+
+BASECHICA <- BASECHICA[!duplicated(BASECHICA$EST_RUT), ]
+PLANILLACHICA <- PLANILLACHICA[!duplicated(PLANILLACHICA$EST_RUT), ]
+
+
+# Realizar la unión basada en coincidencias de 'ESTABLECIMIENTO' entre PLANILLA y BASE
+datos_unidos <- merge(PLANILLACHICA, BASECHICA, by = "EST_RUT", all.x = F)
+
+BASE <- BASE %>%
+  mutate(EST_RUT = str_replace_all(EST_RUT, "[.-]", ""), # Elimina guiones y puntos
+         DV = substr(EST_RUT, nchar(EST_RUT), nchar(EST_RUT)) # Extrae el último dígito
+  )
+BASE$EST_RUT <- substr(BASE$EST_RUT, 1, nchar(BASE$EST_RUT) - 1)
+
+
+resultado_final <- merge(datos_unidos, BASE, by = "EST_RUT")
+resultado_final <- merge(BASE, coincidencias, by.x = "EST_RUT", by.y = "EST_RUT", all.x = TRUE)
+write.xlsx(resultado_final, "C:/Users/cata_/Documents/UMCE2/BASE3.xlsx")
+
+
+```
+
+```{r}
+#Calular lo estudiantes sin supuestos 
+estudiantes_sin_supuestos <- BASE %>%
+  filter(rowSums(select(., starts_with("DESV_"))) == 0)
+print(estudiantes_sin_supuestos)
+
+BASE <- BASE %>%
+  mutate(DESV_NOSUPUESTO = ifelse(rowSums(select(., starts_with("DESV_"))) == 0, 1, DESV_NOSUPUESTO))
+
+# Calcular el promedio de cadBASECHICA# Calcular el promedio de cada supuesto de desvinculación escolar por provincia
+porcentaje_por_provincia <- BASE %>%
+  group_by(PROVINCIAL) %>%
+  summarise(
+    across(starts_with("DESV_"), ~mean(.x) * 100, .names = "Porcentaje_{.col}") # Calcular el porcentaje para cada supuesto
+  )
+
+# Transponer los datos para tener los supuestos como filas y provincias como columnas
+porcentaje_por_provincia_transpuesto <- porcentaje_por_provincia %>%
+  pivot_longer(cols = starts_with("Porcentaje_"), names_to = "Supuesto", values_to = "Porcentaje") %>%
+  pivot_wider(names_from = PROVINCIAL, values_from = Porcentaje)
+
+# Mostrar el resultado
+print(porcentaje_por_provincia_transpuesto)
+
+
+# Generar la tabla con kableExtra y darle formato
+library(kableExtra)
+
+tabla_bonita <- porcentaje_por_provincia_transpuesto %>%
+  kbl(caption = "Porcentaje de supuestos de desvinculación escolar por provincia") %>%
+  kable_paper(full_width = FALSE) %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#0073e6") %>%
+  column_spec(1, bold = TRUE)
+
+# Mostrar la tabla en R Markdown
+tabla_bonita
+
+  
+```
+
+
+### ANALISIS ANTECEDENTES DE LOS ESTUDIANTES REGISTRADOS 
 ```{r}
 # Convertir las variables dummy a numéricas
+summary(BASE)
 BASE[, c("ANT_COMP_FAM",                "ANT_RURAL_DOM",            
   "ANT_DISTANCIA_DOM" ,          "ANT_TRANS_ADEC"       ,       "ANT_ACC_INTERNET"  ,         
   "ANT_REL_SIGNIF_AD" ,          "ANT_REL_SIGNIF_PAR"   ,       "ANT_FALTA_OFERTA"  ,         
   "ANT_SIT_ACAD"      ,          "ANT_ASISTENCIA"       ,       "ANT_ID_GENERO"     ,         
-  "ANT_SALUD"         ,          "MIGRACION"            ,       "ANT_INMIGG"        ,        
+  "ANT_SALUD"         ,          "ANT_MIGRACION"        ,        
   "ANT_SIT_DISCAP"    ,          "ANT_PROB_APRENDIZ"    ,       "ANT_CONS_DROGAS"   ,         
-  "ANT_CONFLICT_JUST" ,          "OTRO_ANT"             ,      "ANT_OTRO" )] <- 
+  "ANT_CONFLICT_JUST" ,          "ANT_INCORPORADO_OP"             ,      "ANT_OTRO" )] <- 
   lapply(BASE[, c("ANT_COMP_FAM",                "ANT_RURAL_DOM",            
   "ANT_DISTANCIA_DOM" ,          "ANT_TRANS_ADEC"       ,       "ANT_ACC_INTERNET"  ,         
   "ANT_REL_SIGNIF_AD" ,          "ANT_REL_SIGNIF_PAR"   ,       "ANT_FALTA_OFERTA"  ,         
   "ANT_SIT_ACAD"      ,          "ANT_ASISTENCIA"       ,       "ANT_ID_GENERO"     ,         
-  "ANT_SALUD"         ,          "MIGRACION"            ,       "ANT_INMIGG"        ,        
+  "ANT_SALUD"         ,          "ANT_MIGRACION"        ,        
   "ANT_SIT_DISCAP"    ,          "ANT_PROB_APRENDIZ"    ,       "ANT_CONS_DROGAS"   ,         
-  "ANT_CONFLICT_JUST" ,          "OTRO_ANT"             ,      "ANT_OTRO" )], as.numeric)
+  "ANT_CONFLICT_JUST" ,          "ANT_INCORPORADO_OP"             ,      "ANT_OTRO" )], as.numeric)
 ```
 
 ```{r}
-# Obtener la frecuencia de cada supuesto de desvinculación
+# Obtener la frecuencia de cada ANT
 frecuencia_antecedentes <- colSums(BASE[, c("ANT_COMP_FAM",                "ANT_RURAL_DOM",            
   "ANT_DISTANCIA_DOM" ,          "ANT_TRANS_ADEC"       ,       "ANT_ACC_INTERNET"  ,         
   "ANT_REL_SIGNIF_AD" ,          "ANT_REL_SIGNIF_PAR"   ,       "ANT_FALTA_OFERTA"  ,         
   "ANT_SIT_ACAD"      ,          "ANT_ASISTENCIA"       ,       "ANT_ID_GENERO"     ,         
-  "ANT_SALUD"         ,          "MIGRACION"            ,       "ANT_INMIGG"        ,        
+  "ANT_SALUD"         ,          "ANT_MIGRACION"        ,        
   "ANT_SIT_DISCAP"    ,          "ANT_PROB_APRENDIZ"    ,       "ANT_CONS_DROGAS"   ,         
-  "ANT_CONFLICT_JUST" ,          "OTRO_ANT"             ,      "ANT_OTRO" )])
+  "ANT_CONFLICT_JUST" ,          "ANT_INCORPORADO_OP"             ,      "ANT_OTRO" )])
 
 # Crear un dataframe con la frecuencia y los nombres de los supuestos
 df_frecuencia <- data.frame(antecedentes = names(frecuencia_antecedentes), frecuencia = frecuencia_antecedentes)
@@ -146,26 +278,103 @@ df_frecuencia <- data.frame(antecedentes = names(frecuencia_antecedentes), frecu
 # Calcular los porcentajes
 df_frecuencia$porcentaje <- df_frecuencia$frecuencia / sum(df_frecuencia$frecuencia) * 100
 
+frecuencia_ant<- colSums(BASE[,c ("ANT_COMP_FAM",                "ANT_RURAL_DOM",            
+  "ANT_DISTANCIA_DOM" ,          "ANT_TRANS_ADEC"       ,       "ANT_ACC_INTERNET"  ,         
+  "ANT_REL_SIGNIF_AD" ,          "ANT_REL_SIGNIF_PAR"   ,       "ANT_FALTA_OFERTA"  ,         
+  "ANT_SIT_ACAD"      ,          "ANT_ASISTENCIA"       ,       "ANT_ID_GENERO"     ,         
+  "ANT_SALUD"         ,          "ANT_MIGRACION"        ,        
+  "ANT_SIT_DISCAP"    ,          "ANT_PROB_APRENDIZ"    ,       "ANT_CONS_DROGAS"   ,         
+  "ANT_CONFLICT_JUST" ,          "ANT_INCORPORADO_OP"             ,      "ANT_OTRO" )])
+
+resp <- unique(BASE$OTRO_ANT)
+print(resp)
 ```
 
-GRAFICO DE BARRAS 
-ANTECEDENTES
-```{r}
+#### Grafico de barras antecedentes de estudiantes registrados
+```{r  echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
 # Crear el gráfico de barras para mostrar nombres y porcentajes de supuestos
 ggplot(df_frecuencia, aes(x = antecedentes, y = porcentaje, fill = antecedentes)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = paste0(round(porcentaje, 2), "%")),
             vjust = -0.5, size = 3) +
-  labs(title = "Porcentaje de antecedentes por estudiante informados",
+  labs(title = "Antecedentes de los estudiante registrados",
        x = "Antecedentes", y = "Porcentaje") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-ANALISIS
-REDES DE LOS ESTABLECIMIENTOS
+
 ```{r}
-names(BASE)
+columnas_antecedentes <- c("ANT_COMP_FAM",                "ANT_RURAL_DOM",            
+  "ANT_DISTANCIA_DOM" ,          "ANT_TRANS_ADEC"       ,       "ANT_ACC_INTERNET"  ,         
+  "ANT_REL_SIGNIF_AD" ,          "ANT_REL_SIGNIF_PAR"   ,       "ANT_FALTA_OFERTA"  ,         
+  "ANT_SIT_ACAD"      ,          "ANT_ASISTENCIA"       ,       "ANT_ID_GENERO"     ,         
+  "ANT_SALUD"         ,          "ANT_MIGRACION"        ,        
+  "ANT_SIT_DISCAP"    ,          "ANT_PROB_APRENDIZ"    ,       "ANT_CONS_DROGAS"   ,         
+  "ANT_CONFLICT_JUST" ,          "ANT_INCORPORADO_OP"             ,      "ANT_OTRO" )  # Lista con nombres de columnas de antecedentes
+
+# Convertir las columnas de antecedentes en formato largo (longitudinal)
+datos_largo <- BASE %>%
+  select(all_of(columnas_antecedentes)) %>%
+  pivot_longer(cols = everything(), names_to = "Antecedente", values_to = "Respuesta")
+
+# Calcular la cantidad de respuestas por antecedente
+cantidad_respuestas <- datos_largo %>%
+  group_by(Antecedente) %>%
+  summarise(cantidad = sum(ifelse(Respuesta == "1", 1, 0), na.rm = TRUE))  # Si son variables dummy 1/0
+
+# Calcular el porcentaje de respuestas por antecedente
+total_respuestas <- sum(cantidad_respuestas$cantidad)
+cantidad_respuestas <- cantidad_respuestas %>%
+  mutate(porcentaje = (cantidad / total_respuestas) * 100)
+
+# Crear el gráfico de barras con las cantidades de respuestas
+ggplot(cantidad_respuestas, aes(x = Antecedente, y = cantidad, fill = Antecedente)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste(cantidad, "(", round(porcentaje, 2), "%)")), vjust = -0.5, size = 3) +
+  labs(title = "Cantidad y porcentaje de respuestas por antecedente",
+       x = "Antecedente", y = "Cantidad") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+# Crear el gráfico de barras con las cantidades de respuestas y porcentaje
+ggplot(cantidad_respuestas, aes(x = Antecedente, y = cantidad, fill = Antecedente)) +
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = paste(cantidad, "(", round(porcentaje, 2), "%)")), vjust = -0.5, size = 3) +
+  labs(title = "Cantidad y porcentaje de respuestas por antecedente",
+       x = "Antecedente", y = "Cantidad") +
+  scale_x_discrete(labels = c(
+    "ANT_COMP_FAM" = "Composición familiar",
+    "ANT_RURAL_DOM" =   "Zona geográfica del domicilio (urbano/rural)",     
+    "ANT_DISTANCIA_DOM" ="Distancia del domicilio con el establecimiento educacional",
+    "ANT_TRANS_ADEC"    = "Existencia de medios de transporte adecuados",
+    "ANT_ACC_INTERNET"  = "Acceso a internet",
+    "ANT_REL_SIGNIF_AD" = "Existencia o falta de relaciones significativas con adultos",
+    "ANT_REL_SIGNIF_PAR"= "Existencia o falta de relaciones significativas con pares",
+    "ANT_FALTA_OFERTA"  = "Falta de oferta educativa para continuar estudios",
+    "ANT_SIT_ACAD"      = "Situación académica", 
+    "ANT_ASISTENCIA"    = "Asistencia a clases", 
+    "ANT_ID_GENERO"     = "Identidad de genero",   
+    "ANT_SALUD"         = "Salud del estudiante",   
+    "ANT_MIGRACION"     = "Migración",  
+    "ANT_SIT_DISCAP"    = "Situación de discapacidad", 
+    "ANT_PROB_APRENDIZ" = "Problemas de aprendizaje",      
+    "ANT_CONS_DROGAS"   = "Consumo de drogas",   
+    "ANT_CONFLICT_JUST" = "Conflictos con la justicia",        
+    "ANT_INCORPORADO_OP"= "Incorporación a otro programa o modalidad educativa",     
+    "ANT_OTRO" = "Otro/s antecedente/s"
+    # ... y así sucesivamente para el resto de los antecedentes
+  )) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+
+#### Redes de los establecimientos declaradas 
+
+```{r}
 BASE[, c("MUNICIPIO", "CONSULTORIO",  "CARABINEROS", "BOMBEROS","JUNTAVECINOS", "ODP", "SENDA", "I_ED_SUPERIOR", "FUNDACIONES","OTRO_ORGANISMO")] <- 
   lapply(BASE[, c("MUNICIPIO", "CONSULTORIO",  "CARABINEROS", "BOMBEROS","JUNTAVECINOS", "ODP", "SENDA", "I_ED_SUPERIOR", "FUNDACIONES","OTRO_ORGANISMO")], as.numeric)
 ```
@@ -181,7 +390,7 @@ num_respuestas <- sum(df_frecuencia$frecuencia)
 
 ```
 
-```{r}
+```{r ,  echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
 ggplot(df_frecuencia, aes(x = organismos, y = porcentaje, fill = organismos)) +
   geom_bar(stat = "identity") +
   geom_text(aes(label = paste0(round(porcentaje, 2), "%\n", frecuencia, " respuestas")),
@@ -191,5 +400,307 @@ ggplot(df_frecuencia, aes(x = organismos, y = porcentaje, fill = organismos)) +
     annotate("text", x = Inf, y = Inf, label = paste("Total de respuestas:", num_respuestas), hjust = 1, vjust = 1) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+#### Informantes clave 
+
+```{r,  echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
+BASE$INF_INTERNO <- as.numeric(as.character(BASE$INF_INTERNO))
+BASE$INF_EXTERNO <- as.numeric(as.character(BASE$INF_EXTERNO))
+BASE$INF_NUCLEO <- as.numeric(as.character(BASE$INF_NUCLEO))
+BASE$INF_CERCANO <- as.numeric(as.character(BASE$INF_CERCANO))
+# Calcular los porcentajes de informantes internos, externos, de núcleo y cercanos
+porcentaje_informantes <- colSums(BASE[, c("INF_INTERNO", "INF_EXTERNO", "INF_NUCLEO", "INF_CERCANO")], na.rm = TRUE) / nrow(BASE) * 100
+
+# Crear un dataframe con los porcentajes calculados
+df_porcentajes <- data.frame(
+  Tipo_Informante = c("Interno", "Externo", "Núcleo", "Cercano"),
+  Porcentaje = porcentaje_informantes
+)
+
+# Graficar el porcentaje de informantes internos, externos, de núcleo y cercanos
+ggplot(df_porcentajes, aes(x = "", y = Porcentaje, fill = Tipo_Informante)) +
+  geom_bar(stat = "identity", width = 1, color = "white") +
+  coord_polar("y", start = 0) +
+  labs(title = "Porcentaje de Informantes por Tipo",
+       x = NULL, y = NULL) +
+  geom_text(aes(label = paste0(round(Porcentaje, 2), "%")),
+            position = position_stack(vjust = 0.5)) +
+  theme_minimal()
+
+```
+
+
+### ANALISIS PLANILLA REVINCULADORES 
+
+```{r, warning=FALSE, include=FALSE}
+#ABRIR POR PROVINCIAL
+NORTE <- read_excel("C:/Users/cata_/Documents/PLANILLAREV.xlsx", sheet = "NORTE")
+ORIENTE <- read_excel("C:/Users/cata_/Documents/PLANILLAREV.xlsx", sheet = "ORIENTE")
+PONIENTE <- read_excel("C:/Users/cata_/Documents/PLANILLAREV.xlsx", sheet = "PONIENTE")
+TALAGANTE <- read_excel("C:/Users/cata_/Documents/PLANILLAREV.xlsx", sheet = "TALAGANTE")
+SUR <- read_excel("C:/Users/cata_/Documents/PLANILLAREV.xlsx", sheet = "SUR")
+CENTRO <- read_excel("C:/Users/cata_/Documents/PLANILLAREV.xlsx", sheet = "CENTRO")
+CORDILLERA <- read_excel("C:/Users/cata_/Documents/PLANILLAREV.xlsx", sheet = "CORDILLERA")
+
+#CONVERTIR COLUMNAS COMBINADA
+SUR <- SUR %>%
+  mutate(ESTABLECIMIENTO = zoo::na.locf(ESTABLECIMIENTO))
+SUR <- SUR %>%
+  mutate(RBD = zoo::na.locf(RBD))
+SUR <- SUR %>%
+  mutate(DIRECTOR = zoo::na.locf(DIRECTOR))
+SUR <- SUR %>%
+  mutate(FONO_ESTAB = zoo::na.locf(FONO_ESTAB))
+
+
+
+CORDILLERA <- CORDILLERA %>%
+  mutate(DIRECTOR = zoo::na.locf(DIRECTOR))
+CORDILLERA <- CORDILLERA %>%
+  mutate(CORREO_DIR = zoo::na.locf(CORREO_DIR))
+CORDILLERA <- CORDILLERA %>%
+  mutate(FONO_ESTAB = zoo::na.locf(FONO_ESTAB))
+
+
+# Ordenar las columnas de base1 según el orden de columnas de NORTE
+ORIENTE <- ORIENTE[, names(NORTE)]
+PONIENTE <- PONIENTE[, names(NORTE)]
+TALAGANTE <- TALAGANTE[, names(NORTE)]
+SUR <- SUR[, names(NORTE)]
+CENTRO <- CENTRO[, names(NORTE)]
+CORDILLERA <- CORDILLERA[, names(NORTE)]
+
+#PEGAR BASES
+PLANILLA <- rbindlist(list(NORTE, ORIENTE), fill = TRUE)
+PLANILLA <- rbindlist(list(PLANILLA, PONIENTE), fill = TRUE)
+PLANILLA <- rbindlist(list(PLANILLA, TALAGANTE), fill = TRUE)
+PLANILLA <- rbindlist(list(PLANILLA, SUR), fill = TRUE)
+PLANILLA <- rbindlist(list(PLANILLA, CENTRO), fill = TRUE)
+PLANILLA <- rbindlist(list(PLANILLA, CORDILLERA), fill = TRUE)
+
+
+
+#CONVERTIR NO CONTACTO
+resp <- unique(PLANILLA$NO_CONTACTO)
+print(resp)
+PLANILLA$NOCONTACTO <- ifelse(PLANILLA$NO_CONTACTO == "SI", 1, 0)
+
+library(dplyr)
+resp <- unique(PLANILLA$SITUACIÓNMOD)
+print(resp)
+PLANILLA <- PLANILLA %>%
+  mutate(SITUACIÓNMOD = recode(SITUACIÓNMOD, "R\r\n" = "R"))
+
+names(PLANILLA)
+
+
+
+
+```
+
+```{r}
+PLANILLA <- read_excel("C:/Users/cata_/Documents/UMCE2/PLANILLA.xlsx")
+names(PLANILLA)
+PLANILLA <- PLANILLA[!duplicated(PLANILLA$RUN), ]
+
+```
+
+
+### PORCENTAJE DE REVINCULACION 
+
++ D = DESVINCULADO 
+
+     1. Si no existió contacto y no se registra revinculación en observaciones 
+     2. Casos registrados como "compromiso de escolarización" o similar
+     3. Sin información 
+     4. Sin matricula vigente
+     
++ R = Revinculado 
+
+     1. Las observaciones denotan que NO necesariamente implica que haya existido un proceso de "acompañamiento" del revinculador para lograr la "revinculación" (RV)
+     2. Quienes tienen observaciones que indican inscripción "oficial" en Ex. libres
+     
++ RV = Revinculado 
+      
+     1. En este caso no necesariamente se evidenció un proceso de aompañamiento, aunque no se puede tener seguridad al respecto, al menos es importante hacer mención de que no se puede comprobar la participación del revindulador o de la estrategia, en cada caso 
+      
++ P = Pendiente 
+     
+     1. Se mantiene lo ya registrado por los vinculadores
+
++ NA = Sin respuesta
+     
+     1. Cuando se registraron como "egresos" o "alta por edad máxima" o "fallecido" 
+
+```{r,  warning =FALSE, echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
+library(ggplot2)
+# Crear un gráfico de pastel con porcentajes
+ggplot(PLANILLA, aes(x = "", fill = SITUACIÓNMOD)) +
+  geom_bar(width = 1) +
+  coord_polar("y", start = 0) +
+  labs(title = "Porcentaje de Estudiantes por Situación de Modificación", fill = "Situación de Modificación") +
+  geom_text(aes(label = paste0(round((..count..)/sum(..count..)*100), "%")), stat = "count", position = position_stack(vjust = 0.5))+
+  scale_x_discrete(labels = c( "D" = "Desvinculado",
+                               "F" = "Fuera de Chile",
+                               "P" = "Pendiente",
+                               "R" = "Revinculado",
+                               "RV" = "Revinculación incierta"))
+```
+
+#### Revinculación de acuerdo a cada provincial 
+```{r,  echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
+# Crear gráfico de barras apiladas
+ggplot(PLANILLA, aes(x = PROVINCIAL, fill = SITUACIÓNMOD)) +
+  geom_bar(position = "stack") +
+  labs(title = "Distribución de Situación de Modificación por Provincia", x = "Provincia", y = "Cantidad") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # Rotar etiquetas del eje x para mejor visualización
+
+
+
+```
+
+```{r}
+# Calcular la cantidad total de respuestas por provincia y situación de modificación
+total_por_provincia <- PLANILLA %>%
+  group_by(PROVINCIAL) %>%
+  summarise(total_cantidad = n(), .groups = 'drop')  # Cantidad total por provincia
+
+# Calcular los porcentajes de cada situación de modificación por provincia
+porcentajes_por_provincia <- PLANILLA %>%
+  group_by(PROVINCIAL, SITUACIÓNMOD) %>%
+  summarise(cantidad = n()) %>%
+  mutate(porcentaje = (cantidad / sum(cantidad)) * 100)  # Porcentaje por provincia y situación de modificación
+
+ggplot(PLANILLA, aes(x = PROVINCIAL, fill = SITUACIÓNMOD)) +
+geom_bar(position = "stack") +
+geom_text(data = total_por_provincia, aes(label = paste("Total:", total_cantidad), y = total_cantidad), vjust = -0.5, size = 3) +
+geom_text(data = porcentajes_por_provincia, aes(label = paste(round(porcentaje, 2), "%"), y = cantidad), position = position_stack(vjust = 0.5), size = 3) +
+labs(title = "Distribución de Situación de Modificación por Provincia", x = "Provincia", y = "Cantidad") +
+theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+resp <- unique(PLANILLA$PROVINCIAL)
+print(resp)
+```
+
+
+### Revinculación de acuerdo a cada provincial considerando porcentaje total
+
+```{r,  echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
+
+# Calcular porcentajes por grupo (SITUACIÓNMOD y PROVINCIAL)
+porcentajes <- PLANILLA %>%
+  group_by(PROVINCIAL, SITUACIÓNMOD) %>%
+  summarise(Count = n()) %>%
+  mutate(Percentage = (Count / sum(Count)) * 100)
+
+# Crear gráfico de barras apiladas con porcentajes
+ggplot(porcentajes, aes(x = PROVINCIAL, y = Percentage, fill = SITUACIÓNMOD, label = paste0(round(Percentage), "%"))) +
+  geom_bar(stat = "identity", position = "stack") +
+  geom_text(position = position_stack(vjust = 0.5), size = 3) +
+  labs(title = "Porcentaje de Situación de Modificación por Provincia", x = "Provincia", y = "Porcentaje") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotar etiquetas del eje x para mejor visualización
+```
+
+### PORCENTAJE DE INFORMACIÓN OBTENIDA DE LOS APODERADOS
+
+#### Considerando únicamente la información registrada en la columna "APODERADO" (NOMBRE)
+
+```{r,  echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
+# Contar la cantidad de estudiantes que tienen información de su apoderado
+estudiantes_con_apoderado <- sum(!is.na(PLANILLA$APODERADO))
+
+# Contar la cantidad de estudiantes que no tienen información de su apoderado
+estudiantes_sin_apoderado <- sum(is.na(PLANILLA$APODERADO))
+
+# Crear un dataframe para los datos
+datos_apoderado <- data.frame(
+  Categoria = c("Con Apoderado", "Sin Apoderado"),
+  Cantidad = c(estudiantes_con_apoderado, estudiantes_sin_apoderado)
+)
+
+# Graficar la cantidad de estudiantes con y sin información de apoderado
+ggplot(datos_apoderado, aes(x = Categoria, y = Cantidad, fill = Categoria)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Estudiantes con/sin Información de Apoderado", y = "Cantidad de Estudiantes") +
+  geom_text(aes(label = Cantidad), vjust = -0.3)
+```
+
+#### Considerando únicamente la información registrada en la columna "APODERADO" (NOMBRE) POR PROVINCIAL
+
+```{r,  echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
+# Obtener todas las categorías posibles de la columna PROVINCIAL
+todas_categorias <- data.frame(PROVINCIAL = unique(PLANILLA$PROVINCIAL))
+
+# Contar la cantidad total de estudiantes por provincia
+estudiantes_por_provincia <- PLANILLA %>%
+  group_by(PROVINCIAL) %>%
+  summarise(Total = n())
+
+# Contar la cantidad de estudiantes con apoderado por provincia
+estudiantes_con_apoderado_por_provincia <- PLANILLA[!is.na(PLANILLA$APODERADO), ] %>%
+  group_by(PROVINCIAL) %>%
+  summarise(ConApoderado = n())
+
+# Unir los datos y calcular porcentajes
+estudiantes_porcentaje <- left_join(todas_categorias, estudiantes_por_provincia, by = "PROVINCIAL") %>%
+  left_join(estudiantes_con_apoderado_por_provincia, by = "PROVINCIAL") %>%
+  mutate(ConApoderado = ifelse(is.na(ConApoderado), 0, ConApoderado),
+         Porcentaje = (ConApoderado / Total) * 100)
+
+# Graficar la cantidad de estudiantes con información de apoderado y porcentaje por provincia
+ggplot(estudiantes_porcentaje, aes(x = reorder(PROVINCIAL, ConApoderado), y = ConApoderado)) +
+  geom_bar(stat = "identity", fill = "skyblue") +
+  geom_text(aes(label = paste0(round(Porcentaje), "%")), vjust = -0.3) +
+  labs(title = "Estudiantes con Información de Apoderado y Porcentaje por Provincia", x = "Provincia", y = "Cantidad de Estudiantes con Apoderado") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  # Rotar etiquetas del eje x para mejor visualización
+```
+
+#### Considerando la existencia de al menos algo de información del apoderado (nombre-fono-direccion-correo) 
+
+```{r}
+# Crear una tabla resumen para contar la cantidad de estudiantes con/sin información de apoderado
+resumen_apoderado <- PLANILLA %>%
+  mutate(Información_apoderado = ifelse(!is.na(APODERADO) | !is.na(DIRECCIÓN_APOD) | !is.na(FONO_APOD) | !is.na(CORREO_APOD), "Con Información", "Sin Información")) %>%
+  count(Información_apoderado)
+
+# Graficar la cantidad de estudiantes con/sin información de apoderado
+ggplot(resumen_apoderado, aes(x = Información_apoderado, y = n, fill = Información_apoderado)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Registro de Información de Apoderado", x = "Información de Apoderado", y = "Cantidad de Estudiantes") +
+  geom_text(aes(label = n), vjust = -0.3)
+```
+
+
+
+### Porcentaje de estudiantes con registro de que no se contactaron
+
+```{r,  echo= FALSE, message= FALSE, fig.width=10, fig.height=6}
+
+# Contar la cantidad de estudiantes no contactados (respuesta "1" en NOCONTACTO)
+cantidad_no_contactados <- sum(PLANILLA$NOCONTACTO == 1, na.rm = TRUE)
+
+# Calcular la cantidad total de estudiantes
+cantidad_total_estudiantes <- nrow(PLANILLA)
+
+# Calcular la cantidad de estudiantes contactados
+cantidad_contactados <- cantidad_total_estudiantes - cantidad_no_contactados
+
+# Crear un dataframe para los datos
+datos_resumen <- data.frame(
+  Estado = c("Contactados", "No Contactados"),
+  Cantidad = c(cantidad_contactados, cantidad_no_contactados)
+)
+
+# Calcular el porcentaje de cada categoría
+datos_resumen$Porcentaje <- (datos_resumen$Cantidad / cantidad_total_estudiantes) * 100
+
+# Crear un gráfico de pastel con la cantidad total de estudiantes y no contactados
+ggplot(datos_resumen, aes(x = "", y = Porcentaje, fill = Estado)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = paste0(round(Porcentaje), "%")), position = position_stack(vjust = 0.5)) +
+  labs(title = "Proporción de Estudiantes Contactados y No Contactados", fill = "Estado") +
+  geom_text(aes(label = paste0("Total: ", cantidad_total_estudiantes)), x = 0, y = 0, size = 4, color = "black", vjust = -1)
 ```
 

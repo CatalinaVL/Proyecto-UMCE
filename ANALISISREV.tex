@@ -1,0 +1,237 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={AnalisisREV},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{AnalisisREV}
+\author{}
+\date{\vspace{-2.5em}2023-12-21}
+
+\begin{document}
+\maketitle
+
+{
+\setcounter{tocdepth}{2}
+\tableofcontents
+}
+\hypertarget{analisis-base-encuesta}{%
+\subsubsection{ANALISIS BASE ENCUESTA}\label{analisis-base-encuesta}}
+
+\hypertarget{desvinculaciuxf3n-de-acuerdo-a-los-supuestos}{%
+\paragraph{Desvinculación de acuerdo a los
+supuestos}\label{desvinculaciuxf3n-de-acuerdo-a-los-supuestos}}
+
+\hypertarget{grafico-de-torta-desvinculaciuxf3n-de-acuerdo-a-cada-supuesto}{%
+\paragraph{Grafico de torta Desvinculación de acuerdo a cada
+supuesto}\label{grafico-de-torta-desvinculaciuxf3n-de-acuerdo-a-cada-supuesto}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\hypertarget{grafico-de-torta-desvinculaciuxf3n-de-acuerdo-a-cada-supuesto-1}{%
+\paragraph{Grafico de torta Desvinculación de acuerdo a cada
+supuesto}\label{grafico-de-torta-desvinculaciuxf3n-de-acuerdo-a-cada-supuesto-1}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+\hypertarget{analisis-antecedentes-de-los-estudiantes-registrados}{%
+\subsubsection{ANALISIS ANTECEDENTES DE LOS ESTUDIANTES
+REGISTRADOS}\label{analisis-antecedentes-de-los-estudiantes-registrados}}
+
+\hypertarget{grafico-de-barras-antecedentes-de-estudiantes-registrados}{%
+\paragraph{Grafico de barras antecedentes de estudiantes
+registrados}\label{grafico-de-barras-antecedentes-de-estudiantes-registrados}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+\hypertarget{redes-de-los-establecimientos-declaradas}{%
+\paragraph{Redes de los establecimientos
+declaradas}\label{redes-de-los-establecimientos-declaradas}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+\hypertarget{informantes-clave}{%
+\paragraph{Informantes clave}\label{informantes-clave}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-14-1.pdf}
+
+\hypertarget{analisis-planilla-revinculadores}{%
+\subsubsection{ANALISIS PLANILLA
+REVINCULADORES}\label{analisis-planilla-revinculadores}}
+
+\hypertarget{porcentaje-de-revinculacion}{%
+\subsubsection{PORCENTAJE DE
+REVINCULACION}\label{porcentaje-de-revinculacion}}
+
+\begin{itemize}
+\item
+  D = DESVINCULADO
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    Si no existió contacto y no se registra revinculación en
+    observaciones
+  \item
+    Casos registrados como ``compromiso de escolarización'' o similar
+  \item
+    Sin información
+  \item
+    Sin matricula vigente
+  \end{enumerate}
+\item
+  R = Revinculado
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    Las observaciones denotan que NO necesariamente implica que haya
+    existido un proceso de ``acompañamiento'' del revinculador para
+    lograr la ``revinculación'' (RV)
+  \item
+    Quienes tienen observaciones que indican inscripción ``oficial'' en
+    Ex. libres
+  \end{enumerate}
+\item
+  RV = Revinculado
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    En este caso no necesariamente se evidenció un proceso de
+    aompañamiento, aunque no se puede tener seguridad al respecto, al
+    menos es importante hacer mención de que no se puede comprobar la
+    participación del revindulador o de la estrategia, en cada caso
+  \end{enumerate}
+\item
+  P = Pendiente
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    Se mantiene lo ya registrado por los vinculadores
+  \end{enumerate}
+\item
+  NA = Sin respuesta
+
+  \begin{enumerate}
+  \def\labelenumi{\arabic{enumi}.}
+  \tightlist
+  \item
+    Cuando se registraron como ``egresos'' o ``alta por edad máxima'' o
+    ``fallecido''
+  \end{enumerate}
+\end{itemize}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-16-1.pdf}
+
+\hypertarget{revinculaciuxf3n-de-acuerdo-a-cada-provincial}{%
+\paragraph{Revinculación de acuerdo a cada
+provincial}\label{revinculaciuxf3n-de-acuerdo-a-cada-provincial}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-17-1.pdf}
+
+\hypertarget{revinculaciuxf3n-de-acuerdo-a-cada-provincial-considerando-porcentaje-total}{%
+\subsubsection{Revinculación de acuerdo a cada provincial considerando
+porcentaje
+total}\label{revinculaciuxf3n-de-acuerdo-a-cada-provincial-considerando-porcentaje-total}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-18-1.pdf}
+
+\hypertarget{porcentaje-de-informaciuxf3n-obtenida-de-los-apoderados}{%
+\subsubsection{PORCENTAJE DE INFORMACIÓN OBTENIDA DE LOS
+APODERADOS}\label{porcentaje-de-informaciuxf3n-obtenida-de-los-apoderados}}
+
+\hypertarget{considerando-uxfanicamente-la-informaciuxf3n-registrada-en-la-columna-apoderado-nombre}{%
+\paragraph{Considerando únicamente la información registrada en la
+columna ``APODERADO''
+(NOMBRE)}\label{considerando-uxfanicamente-la-informaciuxf3n-registrada-en-la-columna-apoderado-nombre}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-19-1.pdf}
+
+\hypertarget{considerando-uxfanicamente-la-informaciuxf3n-registrada-en-la-columna-apoderado-nombre-por-provincial}{%
+\paragraph{Considerando únicamente la información registrada en la
+columna ``APODERADO'' (NOMBRE) POR
+PROVINCIAL}\label{considerando-uxfanicamente-la-informaciuxf3n-registrada-en-la-columna-apoderado-nombre-por-provincial}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-20-1.pdf}
+
+\hypertarget{considerando-la-existencia-de-al-menos-algo-de-informaciuxf3n-del-apoderado-nombre-fono-direccion-correo}{%
+\paragraph{Considerando la existencia de al menos algo de información
+del apoderado
+(nombre-fono-direccion-correo)}\label{considerando-la-existencia-de-al-menos-algo-de-informaciuxf3n-del-apoderado-nombre-fono-direccion-correo}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-21-1.pdf}
+
+\hypertarget{porcentaje-de-estudiantes-con-registro-de-que-no-se-contactaron}{%
+\subsubsection{Porcentaje de estudiantes con registro de que no se
+contactaron}\label{porcentaje-de-estudiantes-con-registro-de-que-no-se-contactaron}}
+
+\includegraphics{ANALISISREV_files/figure-latex/unnamed-chunk-22-1.pdf}
+
+\end{document}

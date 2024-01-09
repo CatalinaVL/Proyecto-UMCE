@@ -578,3 +578,34 @@ MATRICULA2023 <- MATRICULA2023 %>%
 
 
 
+# Cargar las librerías necesarias
+library(kableExtra)
+install.packages("KableExtra")
+# Información de provincias y comunas
+provincias <- c("Santiago Norte", "Santiago Poniente", "Santiago Oriente", "Santiago Centro", "Cordillera", "Talagante", "Santiago Sur")
+comunas <- list(c("Independencia", "Recoleta", "Quilicura", "Huechuraba", "Conchalí", "Colina", "Lampa", "Til Til"),
+                c("Maipú", "Quinta Normal", "Renca", "Pudahuel", "Cerro Navia", "Lo Prado", "Estación Central", "Cerrillos"),
+                c("Ñuñoa", "Providencia", "Las Condes", "La Reina", "Vitacura", "Lo Barnechea", "Peñalolén", "Macul"),
+                c("Santiago", "Pedro Aguirre Cerda", "San Miguel", "San Joaquín"),
+                c("Puente Alto", "Pirque", "San José de Maipo", "La Florida", "La Pintana"),
+                c("Talagante", "Peñaflor", "El Monte", "Isla de Maipo", "Melipilla", "Curacaví", "María Pinto", "San Pedro", "Alhué", "Padre Hurtado"),
+                c("La Granja", "La Cisterna", "San Ramón", "El Bosque", "Lo Espejo", "San Bernardo", "Buin", "Paine", "Calera de Tango"))
+
+# Crear un data frame con las provincias y las comunas que agrupan
+datos <- data.frame(Provincia = provincias, Comunas = sapply(comunas, paste, collapse = ", "))
+
+# Crear la tabla en formato APA utilizando kableExtra
+tabla_apa <- datos %>%
+  kable("html", escape = FALSE) %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, bold = TRUE) %>%
+  row_spec(0, bold = TRUE)
+
+tabla_apa <- datos %>%
+  kable("html", escape = FALSE, align = "l") %>%
+  kable_styling(full_width = FALSE) %>%
+  add_header_above(c("Tabla 1" = 1, "Departamentos Provinciales y sus comunas" = 1)) %>%
+  column_spec(1, bold = TRUE, width = "10em") %>%
+  row_spec(0, bold = TRUE, color = "white", background = "#7F7F7F")
+# Mostrar la tabla
+tabla_apa
